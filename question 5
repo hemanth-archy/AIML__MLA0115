@@ -1,0 +1,65 @@
+from collections import deque
+
+# State representation: (missionaries_left, cannibals_left, boat_side, missionaries_right, cannibals_right)
+# boat_side = 0 for left bank, 1 for right bank
+def is_valid_state(m_left, c_left, m_right, c_right):
+    # Check if any group of missionaries is outnumbered by cannibals on either bank
+    if (m_left < 0 or m_left > 3 or c_left < 0 or c_left > 3 or
+        m_right < 0 or m_right > 3 or c_right < 0 or c_right > 3):
+        return False
+    if (m_left > 0 and c_left > m_left) or (m_right > 0 and c_right > m_right):
+        return False
+    return True
+
+def bfs():
+    initial_state = (3, 3, 0, 0, 0)  # Initial state: (3, 3, 0, 0, 0)
+    goal_state = (0, 0, 1, 3, 3)    # Goal state: (0, 0, 1, 3, 3)
+
+    queue = deque([(initial_state, [])])
+    visited = set()
+    visited.add(initial_state)
+
+    while queue:
+        (m_left, c_left, boat_side, m_right, c_right), path = queue.popleft()
+        
+        if (m_left, c_left, boat_side, m_right, c_right) == goal_state:
+            return path + [(m_left, c_left, boat_side, m_right, c_right)]
+
+        # Determine possible moves based on the boat side
+        if boat_side == 0:  # Boat is on the left side
+            for m_move in range(3):
+                for c_move in range(3):
+                    if (1 <= m_move + c_move <= 2) and (m_move <= m_left and c_move <= c_left):
+                        new_m_left = m_left - m_move
+                        new_c_left = c_left - c_move
+                        new_m_right = m_right + m_move
+                        new_c_right = c_right + c_move
+                        new_state = (new_m_left, new_c_left, 1, new_m_right, new_c_right)
+                        if is_valid_state(new_m_left, new_c_left, new_m_right, new_c_right) and new_state not in visited:
+                            visited.add(new_state)
+                            queue.append((new_state, path + [(m_left, c_left, boat_side, m_right, c_right)]))
+        else:  # Boat is on the right side
+            for m_move in range(3):
+                for c_move in range(3):
+                    if (1 <= m_move + c_move <= 2) and (m_move <= m_right and c_move <= c_right):
+                        new_m_left = m_left + m_move
+                        new_c_left = c_left + c_move
+                        new_m_right = m_right - m_move
+                        new_c_right = c_right - c_move
+                        new_state = (new_m_left, new_c_left, 0, new_m_right, new_c_right)
+                        if is_valid_state(new_m_left, new_c_left, new_m_right, new_c_right) and new_state not in visited:
+                            visited.add(new_state)
+                            queue.append((new_state, path + [(m_left, c_left, boat_side, m_right, c_right)]))
+
+    return None
+
+def print_solution(path):
+    if path:
+        for step in path:
+            print(f"Left bank: {step[0]} missionaries, {step[1]} cannibals | Right bank: {step[3]} missionaries, {step[4]} cannibals | Boat on {'left' if step[2] == 0 else 'right'} bank")
+    else:
+        print("No solution found.")
+
+if __name__ == "__main__":
+    solution = bfs()
+    print_solution(solution)
