@@ -1,0 +1,59 @@
+from collections import deque
+
+def bfs(capacity1, capacity2, target):
+    """Solve the Water Jug Problem using BFS."""
+    # Initial state is (0, 0) meaning both jugs are empty
+    initial_state = (0, 0)
+    # Queue for BFS, storing tuples of (jug1, jug2) and the path to reach them
+    queue = deque([(initial_state, [])])
+    visited = set()  # To keep track of visited states
+    
+    while queue:
+        (jug1, jug2), path = queue.popleft()
+        
+        # If the current state is the target state, return the path to this state
+        if jug1 == target or jug2 == target:
+            return path + [(jug1, jug2)]
+        
+        # Mark this state as visited
+        visited.add((jug1, jug2))
+        
+        # Possible actions
+        actions = [
+            (capacity1, jug2),  # Fill jug1
+            (jug1, capacity2),  # Fill jug2
+            (0, jug2),          # Empty jug1
+            (jug1, 0),          # Empty jug2
+            (jug1 - min(jug1, capacity2 - jug2), jug2 + min(jug1, capacity2 - jug2)),  # Pour jug1 into jug2
+            (jug1 + min(jug2, capacity1 - jug1), jug2 - min(jug2, capacity1 - jug1))   # Pour jug2 into jug1
+        ]
+        
+        for state in actions:
+            if state not in visited:
+                queue.append((state, path + [(jug1, jug2)]))
+    
+    return None
+
+def print_path(path):
+    """Print the sequence of states."""
+    for state in path:
+        print(f"Jug1: {state[0]}, Jug2: {state[1]}")
+    print()
+
+def main():
+    capacity1 = 4  # Capacity of the first jug
+    capacity2 = 3  # Capacity of the second jug
+    target = 2     # Target amount of water
+
+    print(f"Finding a solution to measure {target} units of water using jugs of capacity {capacity1} and {capacity2}.")
+    
+    path = bfs(capacity1, capacity2, target)
+    
+    if path:
+        print("Solution found:")
+        print_path(path)
+    else:
+        print("No solution exists.")
+
+if __name__ == "__main__":
+    main()
