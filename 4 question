@@ -1,0 +1,37 @@
+from itertools import permutations
+
+def solve_cryptarithmetic():
+    """Solve the SEND + MORE = MONEY cryptarithmetic problem."""
+    # Letters involved in the problem
+    letters = 'SENDMOREMONEY'
+    
+    # Generate all permutations of digits for the letters
+    for perm in permutations(range(10), len(set(letters))):
+        mapping = dict(zip(set(letters), perm))
+        
+        # Convert the words to numbers based on the current mapping
+        send = sum(mapping[char] * 10**(len('SEND') - i - 1) for i, char in enumerate('SEND'))
+        more = sum(mapping[char] * 10**(len('MORE') - i - 1) for i, char in enumerate('MORE'))
+        money = sum(mapping[char] * 10**(len('MONEY') - i - 1) for i, char in enumerate('MONEY'))
+        
+        # Check if the equation holds true
+        if send + more == money:
+            return mapping
+    
+    return None
+
+def print_solution(mapping):
+    """Print the solution mapping."""
+    if mapping:
+        print("Solution found:")
+        for letter in sorted(mapping.keys()):
+            print(f"{letter} = {mapping[letter]}")
+    else:
+        print("No solution exists.")
+
+def main():
+    solution = solve_cryptarithmetic()
+    print_solution(solution)
+
+if __name__ == "__main__":
+    main()
